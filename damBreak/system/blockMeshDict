@@ -1,0 +1,142 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  7
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+convertToMeters 0.146;
+
+vertices
+(
+
+    (0.000  0.000  0.000)
+  	(2.000  0.000  0.000)
+  	(3.243  0.000  0.000)
+  	(4.485  0.000  0.000)
+  	(6.485  0.000  0.000)
+  	(0.000  3.000  0.000)
+  	(2.000  3.000  0.000)
+  	(3.243  3.000  0.000)
+  	(4.485  3.000  0.000)
+  	(6.485  3.000  0.000)
+  	(0.000  11.000  0.000)
+  	(2.000  11.000  0.000)
+  	(3.243  11.000  0.000)
+  	(4.485  11.000  0.000)
+  	(6.485  11.000  0.000)
+  	(0.000  0.000  0.100)
+  	(2.000  0.000  0.100)
+  	(3.243  0.000  0.100)
+  	(4.485  0.000  0.100)
+  	(6.485  0.000  0.100)
+  	(0.000  3.000  0.100)
+  	(2.000  3.000  0.100)
+  	(3.243  3.000  0.100)
+  	(4.485  3.000  0.100)
+  	(6.485  3.000  0.100)
+  	(0.000  11.000  0.100)
+  	(2.000  11.000  0.100)
+  	(3.243  11.000  0.100)
+  	(4.485  11.000  0.100)
+  	(6.485  11.000  0.100)
+
+
+);
+
+nC_ribletX 15; //the no. of x-cells in the blocks on/above the riblets
+nC_plateauX 20; //the no. of x-cells in the blocks on/above the space between riblets
+
+nC_surfaceY 20; //the no. of y-cells in the blocks on the surface
+nC_fluidY 15; //the n0. of y-cells in the blocks in the surrounding fluid (e.g. ocean)
+
+r_scale 4; //x-scaling ratio to make the mesh finer on the x-departure from the riblet
+l_scale #calc "1./$r_scale"; //x-scaling ratio to make the mesh finer on the x-approach to the riblet
+top_scale 4; //y-scaling ratio for the cells above the riblet (makes them finer closer to the point)
+
+// blocks
+// (
+//     hex (0 1 6 5 15 16 21 20) ($nC_plateauX $nC_surfaceY 1) simpleGrading (1 1 1) //block 0
+//     hex (1 7 7 6 16 22 22 21) ($nC_ribletX $nC_surfaceY 1) simpleGrading ($l_scale 1 1) //block 1 must match x-comp of block6
+//     hex (7 3 8 7 22 18 23 22) ($nC_ribletX $nC_surfaceY 1) simpleGrading ($r_scale 1 1) //block 2 must match x comp of block 7
+//     hex (3 4 9 8 18 19 24 23) ($nC_plateauX $nC_surfaceY 1) simpleGrading (1 1 1) //block 3
+//     hex (5 6 11 10 20 21 26 25) ($nC_plateauX $nC_fluidY 1) simpleGrading (1 $top_scale 1) //block 4
+//     hex (6 7 12 11 21 22 27 26) ($nC_ribletX $nC_fluidY 1) simpleGrading ($l_scale $top_scale 1) //block 5
+//     hex (7 8 13 12 22 23 28 27) ($nC_ribletX $nC_fluidY 1) simpleGrading ($r_scale $top_scale 1) //block 6
+//     hex (8 9 14 13 23 24 29 28) ($nC_plateauX $nC_fluidY 1) simpleGrading (1 $top_scale 1) //block 7
+// );
+
+//try with a different way of doing the triangles
+
+blocks
+(
+    hex (0 1 7 5 15 16 22 20) ($nC_plateauX $nC_surfaceY 1) simpleGrading (1 1 1) //block 0
+    hex (3 4 9 7 18 19 24 22) ($nC_plateauX $nC_surfaceY 1) simpleGrading (1 1 1) //block 1
+    hex (5 7 12 10 20 22 27 25) ($nC_plateauX $nC_surfaceY 1) simpleGrading (1 1 1) //block 2
+    hex (7 9 14 12 22 24 29 27) ($nC_plateauX $nC_surfaceY 1) simpleGrading (1 1 1) //block 3
+)
+
+edges
+(
+);
+
+boundary
+(
+
+    leftWall
+    {
+      type wall;
+      faces
+      (
+        (0 5 20 15)
+        (5 10 25 20)
+      );
+    }
+
+    rightWall
+    {
+      type wall;
+      faces
+      (
+        (19 24 9 4)
+        (24 29 14 9)
+      );
+    }
+
+    lowerWall
+    {
+      type wall;
+      faces
+      (
+        (0 15 16 1)
+        (1 16 22 7)
+        (7 22 18 3)
+        (3 18 19 4)
+      );
+    }
+
+    atmosphere
+    {
+        type patch;
+        faces
+        (
+            (10 12 27 25)
+            (12 14 29 27)
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //
